@@ -81,7 +81,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     devices.append(
         XiaomiGatewayRadioSwitch(gateway)
     )
-    _LOGGER.debug("Add test switch to entities")
+    devices.append(
+        XiaomiGatewayAlarmSwitch(gateway)
+    )
+    _LOGGER.debug(f"Added {gateway.sid} switches to entities.")
     add_entities(devices)
 
 
@@ -239,9 +242,45 @@ class XiaomiGatewayRadioSwitch(XiaomiGatewayGenericSwitch):
 
     def update(self):
         """Get data from hub."""
-        _LOGGER.debug("Update data from hub: %s", self._name)
+        _LOGGER.debug("Update radio state from hub: %s", self._name)
         resp = self.miio.raw_command("get_prop_fm", [])
         self._volume = resp.get("current_volume")
         self._state = resp.get("current_status") == 'run'
+
+
+class XiaomiGatewayAlarmSwitch(XiaomiGatewayGenericSwitch):
+    """Xiaomi Gateway Radio Switch"""
+
+    def __init__(self, xiaomi_hub):
+        super().__init__(xiaomi_hub)
+        self._name = f"gateway_alarm_{xiaomi_hub.sid}"
+
+    @property
+    def icon(self):
+        """Return the icon to use in the frontend, if any."""
+        return "mdi:security"
+
+    @property
+    def device_state_attributes(self):
+        """Add Radio Volume to the state attributes."""
+        return self._gw_attrs
+
+    def turn_on(self, **kwargs):
+        """Turn the switch on."""
+        if 'ok' in self.miio.raw_command('set_arming', ["on"]):
+            self._state = True
+        _LOGGER.debug(f"{self._name} Alarm ON")
+
+    def turn_off(self, **kwargs):
+        """Turn the switch off."""
+        if 'ok' in self.miio.raw_command('set_arming', ["off"]):
+            self._state = False
+        _LOGGER.debug(f"{self._name} Alarm OFF")
+
+    def update(self):
+        """Get alarm state from hub."""
+        _LOGGER.debug("Update alarm state from hub: %s", self._name)
+        resp = self.miio.raw_command("get_arming", [])
+        self._state = 'on' in resp
 
 

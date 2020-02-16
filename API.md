@@ -27,21 +27,25 @@
 ### Alarm
 
 - Query the status:
-```{"id":65005,"method":"get_arming","params":[]}
+```
+{"id":65005,"method":"get_arming","params":[]}
 {"result":["off"],"id":65005}
 ```
 
 - Query the wait time:
-```{"id":65006,"method":"get_arm_wait_time","params":[]}
+```
+{"id":65006,"method":"get_arm_wait_time","params":[]}
 {"result":[5],"id":65006}
 ```
 
 - set arming:
-```{"id":65013,"method":"set_arming","params":["on"]}
+```
+{"id":65013,"method":"set_arming","params":["on"]}
 {"result":["ok"],"id":65013}
 ```
 
 - set arming off:
-```{"id":65014,"method":"set_arming","params":["off"]}
+```
+{"id":65014,"method":"set_arming","params":["off"]}
 {"result":["ok"],"id":65014}
 ```
