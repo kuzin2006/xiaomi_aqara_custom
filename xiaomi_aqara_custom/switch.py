@@ -180,6 +180,14 @@ class XiaomiGatewayGenericSwitch(SwitchDevice):
         self._name = None
         self.miio = xiaomi_hub.miio
 
+        """Return the gateway attributes."""
+        miio_info = self.miio.info()
+        self._gw_attrs = {
+            "model": miio_info.data.get("model"),
+            "miio_token": miio_info.data.get("token"),
+            "ip": miio_info.network_interface.get("localIp")
+        }
+
     @property
     def name(self):
         """Return the name of the device."""
@@ -189,18 +197,6 @@ class XiaomiGatewayGenericSwitch(SwitchDevice):
     def is_on(self):
         """Return true if it is on."""
         return self._state
-
-    @property
-    def device_state_attributes(self):
-        """Return the state attributes."""
-        miio_info = self.miio.info()
-        attrs = {
-            "model":  miio_info.data.get("model"),
-            "miio_token": miio_info.data.get("token"),
-            "ip": miio_info.network_interface.get("localIp")
-        }
-        # attrs.update(super().device_state_attributes)
-        return attrs
 
     @property
     def should_poll(self):
@@ -214,11 +210,21 @@ class XiaomiGatewayRadioSwitch(XiaomiGatewayGenericSwitch):
     def __init__(self, xiaomi_hub):
         super().__init__(xiaomi_hub)
         self._name = f"gateway_radio_{xiaomi_hub.sid}"
+        self._volume = None
 
     @property
     def icon(self):
         """Return the icon to use in the frontend, if any."""
         return "mdi:radio"
+
+    @property
+    def device_state_attributes(self):
+        """Add Radio Volume to the state attributes."""
+        return {
+            "volume": self._volume,
+            **self._gw_attrs
+            }
+
 
     def turn_on(self, **kwargs):
         """Turn the switch on."""
@@ -236,6 +242,7 @@ class XiaomiGatewayRadioSwitch(XiaomiGatewayGenericSwitch):
         """Get data from hub."""
         _LOGGER.debug("Update data from hub: %s", self._name)
         resp = self.miio.raw_command("get_prop_fm", [])
+        self._volume = resp.get("current_volume")
         self._state = resp.get("current_status") == 'run'
 
 

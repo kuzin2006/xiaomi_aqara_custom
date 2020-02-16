@@ -159,9 +159,6 @@ def setup(hass, config):
         _LOGGER.error("No gateway discovered")
         return
 
-    for ip, gateway in xiaomi.gateways.items():
-        _LOGGER.debug(f"IP {ip} - {config[DOMAIN][CONF_GATEWAYS]}")
-
     xiaomi.listen()
     _LOGGER.debug("Gateways discovered. Listening for broadcasts")
 
