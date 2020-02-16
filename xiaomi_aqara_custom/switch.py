@@ -76,6 +76,12 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
                 devices.append(
                     XiaomiGenericSwitch(device, "Wall Plug", data_key, True, gateway)
                 )
+
+    # add gateway internal switches
+    devices.append(
+        XiaomiGatewayRadioSwitch(gateway)
+    )
+    _LOGGER.debug("Add test switch to entities")
     add_entities(devices)
 
 
@@ -163,5 +169,73 @@ class XiaomiGenericSwitch(XiaomiDevice, SwitchDevice):
         """Get data from hub."""
         _LOGGER.debug("Update data from hub: %s", self._name)
         self._get_from_hub(self._sid)
+
+
+class XiaomiGatewayGenericSwitch(SwitchDevice):
+    """Internal gateway services switch representation"""
+
+    def __init__(self, xiaomi_hub):
+        """init switch"""
+        self._state = None
+        self._name = None
+        self.miio = xiaomi_hub.miio
+
+    @property
+    def name(self):
+        """Return the name of the device."""
+        return self._name
+
+    @property
+    def is_on(self):
+        """Return true if it is on."""
+        return self._state
+
+    @property
+    def device_state_attributes(self):
+        """Return the state attributes."""
+        miio_info = self.miio.info()
+        attrs = {
+            "model":  miio_info.data.get("model"),
+            "miio_token": miio_info.data.get("token"),
+            "ip": miio_info.network_interface.get("localIp")
+        }
+        # attrs.update(super().device_state_attributes)
+        return attrs
+
+    @property
+    def should_poll(self):
+        """Return the polling state. """
+        return True
+
+
+class XiaomiGatewayRadioSwitch(XiaomiGatewayGenericSwitch):
+    """Xiaomi Gateway Radio Switch"""
+
+    def __init__(self, xiaomi_hub):
+        super().__init__(xiaomi_hub)
+        self._name = f"gateway_radio_{xiaomi_hub.sid}"
+
+    @property
+    def icon(self):
+        """Return the icon to use in the frontend, if any."""
+        return "mdi:radio"
+
+    def turn_on(self, **kwargs):
+        """Turn the switch on."""
+        if 'ok' in self.miio.raw_command('play_fm', ["on"]):
+            self._state = True
+        _LOGGER.debug("test switch ON")
+
+    def turn_off(self, **kwargs):
+        """Turn the switch off."""
+        if 'ok' in self.miio.raw_command('play_fm', ["off"]):
+            self._state = False
+        _LOGGER.debug("test switch OFF")
+
+    def update(self):
+        """Get data from hub."""
+        _LOGGER.debug("Update data from hub: %s", self._name)
+        resp = self.miio.raw_command("get_prop_fm", [])
+        self._state = resp.get("current_status") == 'run'
 
 

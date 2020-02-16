@@ -345,6 +345,7 @@ class XiaomiMiioGateway(XiaomiGateway):
         _LOGGER.debug(f"MIIO init with IP {args[0]} and token {miio_token}.")
         super().__init__(*args, **kwargs)
 
+
 class XiaomiDevice(Entity):
     """Representation a base Xiaomi device."""
 
