@@ -28,6 +28,6 @@ provides additional support for MIIO protocol commands
     you may follow instructions on [ximiraga.ru](http://ximiraga.ru/i.php?chlang=en#install) to make your gateway play 
     smth better than built-in chinese channels
     
-- WIP: service to change radio volume
+- Service to change radio volume `xiaomi_aqara_custom.radio_volume`
 
 - WIP: switch to control Gateway Alarm function
