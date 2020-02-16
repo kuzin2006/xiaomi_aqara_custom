@@ -20,4 +20,8 @@ stop_ringtone:
   description: Stops a playing ringtone immediately.
   fields:
     gw_mac: {description: MAC address of the Xiaomi Aqara Gateway., example: 34ce00880088}
-# TODO: update description
+radio_volume:
+  description: Sets radio volume to 0..100.
+  fields:
+    gw_mac: {description: MAC address of the Xiaomi Aqara Gateway., example: 34ce00880088}
+    volume: {description: Desired Radio Volume., example: 20}

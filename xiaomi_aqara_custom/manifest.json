@@ -1,10 +1,8 @@
 {
   "domain": "xiaomi_aqara_custom",
   "name": "Xiaomi Gateway (Aqara) with MIIO commands support",
-  "documentation": "https://www.home-assistant.io/integrations/xiaomi_aqara",
+  "documentation": "https://github.com/kuzin2006/xiaomi_aqara_custom",
   "requirements": ["PyXiaomiGateway==0.12.4"],
   "dependencies": [],
-  "codeowners": ["@danielhiversen", "@syssi"]
+  "codeowners": ["@kuzin2006"]
 }
-
-//TODO: update manifest

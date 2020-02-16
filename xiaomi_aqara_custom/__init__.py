@@ -33,6 +33,7 @@ ATTR_GW_MAC = "gw_mac"
 ATTR_RINGTONE_ID = "ringtone_id"
 ATTR_RINGTONE_VOL = "ringtone_vol"
 ATTR_DEVICE_ID = "device_id"
+ATTR_RADIO_VOLUME = "volume"
 
 CONF_DISCOVERY_RETRY = "discovery_retry"
 CONF_GATEWAYS = "gateways"
@@ -51,7 +52,7 @@ SERVICE_PLAY_RINGTONE = "play_ringtone"
 SERVICE_STOP_RINGTONE = "stop_ringtone"
 SERVICE_ADD_DEVICE = "add_device"
 SERVICE_REMOVE_DEVICE = "remove_device"
-SERVICE_RADIO_ON = "radio_on"
+SERVICE_RADIO_VOLUME = "radio_volume"
 
 GW_MAC = vol.All(
     cv.string, lambda value: value.replace(":", "").lower(), vol.Length(min=12, max=12)
@@ -72,6 +73,9 @@ SERVICE_SCHEMA_REMOVE_DEVICE = vol.Schema(
     {vol.Required(ATTR_DEVICE_ID): vol.All(cv.string, vol.Length(min=14, max=14))}
 )
 
+SERVICE_SCHEMA_RADIO_VOLUME = vol.Schema(
+    {vol.Required(ATTR_RADIO_VOLUME): vol.All(cv.positive_int, vol.Range(min=0, max=100))}
+)
 
 GATEWAY_CONFIG = vol.Schema(
     {
@@ -206,10 +210,12 @@ def setup(hass, config):
         gateway = call.data.get(ATTR_GW_MAC)
         gateway.write_to_hub(gateway.sid, remove_device=device_id)
 
-    def radio_on_service(call):
+    def radio_volume_service(call):
         """Service to remove a sub-device from the gateway."""
         gateway = call.data.get(ATTR_GW_MAC)
-        gateway.miio.raw_command("play_fm", ["on"])
+        volume = call.data.get(ATTR_RADIO_VOLUME)
+        resp = gateway.miio.raw_command("volume_ctrl_fm", [f"{volume}"])
+        _LOGGER.debug(f"{gateway.sid} Radio Volume set to {resp.get('volume')}")
 
     gateway_only_schema = _add_gateway_to_schema(xiaomi, vol.Schema({}))
 
@@ -236,7 +242,10 @@ def setup(hass, config):
     )
 
     hass.services.register(
-        DOMAIN, SERVICE_RADIO_ON, radio_on_service, schema=gateway_only_schema
+        DOMAIN,
+        SERVICE_RADIO_VOLUME,
+        radio_volume_service,
+        schema=_add_gateway_to_schema(xiaomi, SERVICE_SCHEMA_RADIO_VOLUME),
     )
 
     return True

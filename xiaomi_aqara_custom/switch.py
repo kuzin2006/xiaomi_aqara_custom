@@ -225,18 +225,17 @@ class XiaomiGatewayRadioSwitch(XiaomiGatewayGenericSwitch):
             **self._gw_attrs
             }
 
-
     def turn_on(self, **kwargs):
         """Turn the switch on."""
         if 'ok' in self.miio.raw_command('play_fm', ["on"]):
             self._state = True
-        _LOGGER.debug("test switch ON")
+        _LOGGER.debug(f"{self._name} Radio ON")
 
     def turn_off(self, **kwargs):
         """Turn the switch off."""
         if 'ok' in self.miio.raw_command('play_fm', ["off"]):
             self._state = False
-        _LOGGER.debug("test switch OFF")
+        _LOGGER.debug(f"{self._name} Radio OFF")
 
     def update(self):
         """Get data from hub."""
