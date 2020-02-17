@@ -347,7 +347,9 @@ class XiaomiMiioGateway(XiaomiGateway):
     """
     def __init__(self, *args, miio_token=None, **kwargs):
         self.miio_token = miio_token
-        self.miio = miio.device.Device(args[0], miio_token)
+        self.miio = None
+        if miio_token:
+            self.miio = miio.device.Device(args[0], miio_token)
         _LOGGER.debug(f"MIIO init with IP {args[0]} and token {miio_token}.")
         super().__init__(*args, **kwargs)
 
